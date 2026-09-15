@@ -1,0 +1,34 @@
+{% extends "hr/base.html" %}
+{% block title %}项目任务预览{% endblock %}
+{% block content %}
+<h1>{{ project.name }}：任务预览</h1>
+{% if error %}<p role="alert">{{ error }}</p>{% endif %}
+<p>预计任务总数：{{ preview.total_count }}</p>
+<ul>
+  <li>上级：{{ preview.counts_by_group.manager }}</li>
+  <li>同部门：{{ preview.counts_by_group.same_department }}</li>
+  <li>跨部门：{{ preview.counts_by_group.cross_department }}</li>
+</ul>
+<h2>企业微信未绑定人员</h2>
+<ul>
+  {% for employee in preview.unbound_employees %}
+    <li>{{ employee.name }}（{{ employee.department_level_1 }} / {{ employee.department_level_2 }}）</li>
+  {% empty %}
+    <li>无</li>
+  {% endfor %}
+</ul>
+<h2>关系异常</h2>
+<ul>
+  {% for anomaly in preview.relation_anomalies %}
+    <li>{{ anomaly.message }}</li>
+  {% empty %}
+    <li>无</li>
+  {% endfor %}
+</ul>
+{% if project.status == "draft" %}
+  <form method="post" action="{% url 'evaluations:project-prepare' project.public_id %}">
+    {% csrf_token %}
+    <button type="submit" {% if preview.relation_anomalies %}disabled{% endif %}>冻结快照并生成任务</button>
+  </form>
+{% endif %}
+{% endblock %}

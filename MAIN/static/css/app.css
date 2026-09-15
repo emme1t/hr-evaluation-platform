@@ -1,0 +1,9 @@
+:root { font-family: system-ui, sans-serif; color: #1f2937; background: #f8fafc; }
+body { margin: 0; }
+main { box-sizing: border-box; margin: 0 auto; max-width: 42rem; padding: 1rem; }
+.task-group, .evaluation-item { margin: 1rem 0; padding: 1rem; background: #fff; border-radius: .5rem; }
+.task-link { display: block; min-height: 2.75rem; line-height: 2.75rem; }
+.score-options { display: flex; flex-wrap: wrap; gap: .75rem; }
+.score-options label { display: inline-flex; min-width: 2.75rem; min-height: 2.75rem; align-items: center; justify-content: center; border: 1px solid #94a3b8; border-radius: .375rem; }
+.read-only-notice { padding: .75rem; background: #fef3c7; }
+@media (max-width: 42rem) { .score-options { display: grid; grid-template-columns: repeat(5, minmax(2.75rem, 1fr)); } }

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>{% load static %}<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="{% static 'css/app.css' %}"><title>我的评价任务</title></head>
+<body>
+  <main class="task-center">
+    <h1>我的评价任务</h1>
+    {% for project_group in project_groups %}
+      <section class="project-task-group" aria-labelledby="project-{{ project_group.project.public_id }}">
+        <h2 id="project-{{ project_group.project.public_id }}">{{ project_group.project.name }}</h2>
+        <p>截止时间：{{ project_group.project.deadline }}</p>
+        {% for key, tasks in project_group.buckets.items %}
+          <section class="task-group" aria-labelledby="{{ project_group.project.public_id }}-{{ key }}">
+            <h3 id="{{ project_group.project.public_id }}-{{ key }}">{% if key == "pending" %}待填写{% elif key == "draft" %}草稿{% elif key == "submitted" %}已提交{% else %}已截止{% endif %}</h3>
+            <ul>
+              {% for task in tasks %}
+                <li><a class="task-link" href="{% url 'evaluations:task_detail' task.public_id %}">{{ task.project_subject.subject_snapshot.name }}</a></li>
+              {% empty %}
+                <li>暂无任务</li>
+              {% endfor %}
+            </ul>
+          </section>
+        {% endfor %}
+      </section>
+    {% empty %}
+      <p>暂无任务</p>
+    {% endfor %}
+  </main>
+</body>
+</html>

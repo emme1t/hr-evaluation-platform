@@ -1,0 +1,24 @@
+{% extends "hr/base.html" %}
+{% block title %}HR 工作台{% endblock %}
+{% block content %}
+<h1>HR 工作台</h1>
+<span hidden aria-live="polite">正在加载工作台</span>
+{% if dashboard_error %}
+<section role="alert" data-state="error"><h2>工作台暂时不可用</h2><p>请稍后刷新；如持续出现，请联系系统管理员。</p></section>
+{% else %}
+<div data-state="ready" aria-busy="false">
+<dl class="metrics">
+  <div class="metric"><dt>员工数</dt><dd><a href="{{ metric_links.employee_count }}">{{ metrics.employee_count }}</a></dd></div>
+  <div class="metric"><dt>进行中项目</dt><dd><a href="{{ metric_links.active_projects }}">{{ metrics.active_projects }}</a></dd></div>
+  <div class="metric"><dt>完成进度</dt><dd><a href="{{ metric_links.completion }}">{{ metrics.completion_numerator }}/{{ metrics.completion_denominator }}</a></dd></div>
+  <div class="metric"><dt>待完成任务</dt><dd><a href="{{ metric_links.pending_tasks }}">{{ metrics.pending_tasks }}</a></dd></div>
+  <div class="metric"><dt>失败通知</dt><dd><a href="{{ metric_links.failed_outboxes }}">{{ metrics.failed_outboxes }}</a></dd></div>
+  <div class="metric"><dt>数据异常</dt><dd><a href="{{ metric_links.anomalies }}">{{ metrics.anomalies }}</a></dd></div>
+</dl>
+<section aria-labelledby="recent-heading"><h2 id="recent-heading">近期活动</h2>
+{% if recent_activity %}<ol>{% for item in recent_activity %}<li><a href="{{ item.url }}">{{ item.event.action }}</a> <time datetime="{{ item.event.created_at|date:'c' }}">{{ item.event.created_at|date:"Y-m-d H:i" }}</time></li>{% endfor %}</ol>{% else %}<p>暂无近期活动</p>{% endif %}
+</section>
+<section aria-labelledby="admin-tools"><h2 id="admin-tools">管理工具</h2>{% if request.hr_role == "HR_ADMIN" %}<a href="{% url 'audit:list' %}">查看和导出审计日志</a>{% else %}<span aria-disabled="true">审计日志</span><p>仅 HR 管理员可查看和导出审计日志</p>{% endif %}</section>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="zh-Hans"><head><meta charset="utf-8"><title>{{ title }}</title></head>
+<body><h1>{{ title }}</h1><p>输入员工编号后可查询姓名确认；保存后关系使用员工主键关联。</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">保存</button></form>
+<div id="employee-confirmation" aria-live="polite"></div><p><a href="{% url 'roster:relationship-list' %}">返回协作关系列表</a></p>
+<script>
+async function showEmployee(input) {
+  if (!input.value.trim()) return;
+  const url = "{% url 'roster:employee-lookup' %}?employee_no=" + encodeURIComponent(input.value.trim());
+  const result = await fetch(url, {headers: {"Accept": "application/json"}}).then(response => response.json());
+  document.getElementById("employee-confirmation").textContent = result.found ? result.employee_no + "：" + result.name : "未找到启用员工";
+}
+for (const id of ["id_subject_no", "id_evaluator_no"]) document.getElementById(id).addEventListener("change", event => showEmployee(event.target));
+</script></body></html>

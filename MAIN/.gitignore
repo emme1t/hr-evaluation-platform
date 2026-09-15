@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+*.sqlite3
+media/
+private_uploads/
+outputs/
+backups/
+playwright-report/
+test-results/

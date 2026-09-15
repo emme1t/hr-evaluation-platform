@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-Hans"><head><meta charset="utf-8"><title>花名册维护</title></head>
+<body>
+<nav><a href="{% url 'roster:category-list' %}">员工类别</a> <a href="{% url 'roster:relationship-list' %}">协作关系</a></nav>
+<h1>花名册维护</h1>
+<p><a href="{% url 'roster:employee-create' %}">新增员工</a></p>
+<form method="post" enctype="multipart/form-data" action="{% url 'roster:roster-upload' %}">
+  {% csrf_token %}{{ upload_form.as_p }}<button type="submit">上传并预检</button>
+</form>
+<table><thead><tr><th>员工编号</th><th>姓名</th><th>部门</th><th>类别</th><th>状态</th><th>操作</th></tr></thead>
+<tbody>{% for employee in page_obj %}<tr>
+  <td>{{ employee.employee_no }}</td><td>{{ employee.name }}</td>
+  <td>{{ employee.department_level_1 }} / {{ employee.department_level_2 }}</td>
+  <td>{{ employee.category.name }}</td><td>{{ employee.is_active|yesno:"启用,停用" }}</td>
+  <td><a href="{% url 'roster:employee-edit' employee.id %}">编辑</a>{% if employee.is_active %}
+    <form method="post" action="{% url 'roster:employee-deactivate' employee.id %}" style="display:inline">{% csrf_token %}<button type="submit">停用</button></form>{% endif %}</td>
+</tr>{% empty %}<tr><td colspan="6">暂无员工</td></tr>{% endfor %}</tbody></table>
+{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">上一页</a>{% endif %}
+<span>第 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 页</span>
+{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">下一页</a>{% endif %}
+</body></html>

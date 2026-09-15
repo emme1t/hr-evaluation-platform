@@ -1,0 +1,6 @@
+<!doctype html>
+<html lang="zh-Hans"><head><meta charset="utf-8"><title>{{ title }}</title></head>
+<body><h1>{{ title }}</h1>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">保存</button></form>
+<p><a href="{% url 'roster:roster-list' %}">返回花名册</a></p>
+</body></html>

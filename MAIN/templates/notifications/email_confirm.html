@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>评价任务身份确认</title></head>
+<body>
+  {% if invalid %}
+    <h1>链接无效或已过期</h1>
+  {% else %}
+    <h1>确认进入评价任务中心</h1>
+    <p>确认后此链接将立即失效。</p>
+    <p id="magic-link-status" role="status">正在检查一次性链接。</p>
+    <form method="post" id="magic-link-confirm-form">
+      {% csrf_token %}
+      <input type="hidden" name="token" id="magic-link-token" value="">
+      <button type="submit" id="magic-link-submit" disabled>确认并进入</button>
+    </form>
+    <script>
+      (() => {
+        const token = window.location.hash.slice(1);
+        const status = document.getElementById("magic-link-status");
+        history.replaceState(null, document.title, window.location.pathname + window.location.search);
+        if (!/^[A-Za-z0-9_-]{40,128}$/.test(token)) {
+          status.textContent = "链接中缺少有效的一次性凭证，请重新打开邮件中的完整链接。";
+          return;
+        }
+        document.getElementById("magic-link-token").value = token;
+        document.getElementById("magic-link-submit").disabled = false;
+        status.textContent = "一次性凭证已就绪，请确认进入。";
+      })();
+    </script>
+  {% endif %}
+</body>
+</html>

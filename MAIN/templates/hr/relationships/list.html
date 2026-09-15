@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="zh-Hans"><head><meta charset="utf-8"><title>协作关系维护</title></head>
+<body><nav><a href="{% url 'roster:roster-list' %}">花名册</a> <a href="{% url 'roster:category-list' %}">员工类别</a></nav>
+<h1>协作关系维护</h1><p><a href="{% url 'roster:relationship-create' %}">新增协作关系</a></p>
+<form method="post" enctype="multipart/form-data" action="{% url 'roster:relationship-upload' %}">{% csrf_token %}{{ upload_form.as_p }}<button type="submit">上传并预检</button></form>
+<table><thead><tr><th>被评价人</th><th>评价人</th><th>关系</th><th>状态</th><th>操作</th></tr></thead><tbody>
+{% for relationship in page_obj %}<tr><td>{{ relationship.subject.employee_no }} {{ relationship.subject.name }}</td><td>{{ relationship.evaluator.employee_no }} {{ relationship.evaluator.name }}</td><td>{{ relationship.get_relationship_type_display }}</td><td>{{ relationship.is_active|yesno:"启用,停用" }}</td>
+<td><a href="{% url 'roster:relationship-edit' relationship.id %}">编辑</a>{% if relationship.is_active %}<form method="post" action="{% url 'roster:relationship-deactivate' relationship.id %}" style="display:inline">{% csrf_token %}<button type="submit">停用</button></form>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="5">暂无协作关系</td></tr>{% endfor %}</tbody></table>
+{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">上一页</a>{% endif %}<span>第 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 页</span>{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">下一页</a>{% endif %}
+</body></html>

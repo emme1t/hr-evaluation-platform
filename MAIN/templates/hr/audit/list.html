@@ -1,0 +1,24 @@
+{% extends "hr/base.html" %}
+{% block title %}审计日志{% endblock %}
+{% block content %}
+<h1>审计日志</h1>
+{% if query_error %}<p role="alert">审计查询条件无效，请使用不超过 93 天的有效范围。</p>{% endif %}
+<form method="get" class="filters" aria-label="审计筛选">
+  <label for="start">开始日期</label><input id="start" name="start" type="date" value="{{ filters.start }}">
+  <label for="end">结束日期</label><input id="end" name="end" type="date" value="{{ filters.end }}">
+  <label for="action">动作</label><select id="action" name="action"><option value="">全部</option>{% for action in actions %}<option value="{{ action }}"{% if filters.action == action %} selected{% endif %}>{{ action }}</option>{% endfor %}</select>
+  <label for="target_type">对象类型</label><select id="target_type" name="target_type"><option value="">全部</option>{% for target_type in target_types %}<option value="{{ target_type }}"{% if filters.target_type == target_type %} selected{% endif %}>{{ target_type }}</option>{% endfor %}</select>
+  <label for="target_id">对象标识</label><input id="target_id" name="target_id" value="{{ filters.target_id }}" maxlength="64">
+  <label for="operator">操作者 UUID</label><input id="operator" name="operator" value="{{ filters.operator }}" maxlength="36">
+  <button type="submit">查询</button>
+</form>
+<form method="post" action="{% url 'audit:export' %}">{% csrf_token %}
+  <input type="hidden" name="start" value="{{ filters.start }}"><input type="hidden" name="end" value="{{ filters.end }}"><input type="hidden" name="action" value="{{ filters.action }}"><input type="hidden" name="target_type" value="{{ filters.target_type }}"><input type="hidden" name="target_id" value="{{ filters.target_id }}"><input type="hidden" name="operator" value="{{ filters.operator }}">
+  <button type="submit">导出当前筛选</button>
+</form>
+{% if page_obj %}<div class="table-wrap"><table><thead><tr><th>时间</th><th>操作者</th><th>角色</th><th>动作</th><th>对象</th></tr></thead><tbody>
+{% for event in page_obj %}<tr><td>{{ event.created_at|date:"Y-m-d H:i:s" }}</td><td>{{ event.actor.username }}</td><td>{{ event.effective_role }}</td><td>{{ event.action }}</td><td>{{ event.target_type }} / {{ event.target_id }}</td></tr>{% empty %}<tr><td colspan="5">暂无审计记录</td></tr>{% endfor %}
+</tbody></table></div>
+<nav aria-label="审计分页">{% if page_obj.has_previous %}<a href="?start={{ filters.start }}&amp;end={{ filters.end }}&amp;action={{ filters.action }}&amp;target_type={{ filters.target_type }}&amp;target_id={{ filters.target_id }}&amp;operator={{ filters.operator }}&amp;page={{ page_obj.previous_page_number }}">上一页</a>{% endif %}<span>第 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 页</span>{% if page_obj.has_next %}<a href="?start={{ filters.start }}&amp;end={{ filters.end }}&amp;action={{ filters.action }}&amp;target_type={{ filters.target_type }}&amp;target_id={{ filters.target_id }}&amp;operator={{ filters.operator }}&amp;page={{ page_obj.next_page_number }}">下一页</a>{% endif %}</nav>
+{% endif %}
+{% endblock %}

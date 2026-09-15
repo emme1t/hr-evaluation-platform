@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-Hans"><head><meta charset="utf-8"><title>导入预检</title></head>
+<body><h1>导入预检</h1>
+<dl>
+  <dt>文件</dt><dd>{{ batch.original_filename }}</dd>
+  <dt>有效</dt><dd>{{ batch.valid_count }}</dd>
+  <dt>新增</dt><dd>{{ batch.create_count }}</dd>
+  <dt>可更新</dt><dd>{{ batch.update_count }}</dd>
+  <dt>可跳过</dt><dd>{{ batch.skip_count }}</dd>
+  <dt>覆盖模式将停用</dt><dd>{{ batch.deactivate_count }}</dd>
+  <dt>异常</dt><dd>{{ batch.issue_count }}</dd>
+</dl>
+{% if batch.deactivate_count %}
+<section aria-labelledby="deactivation-heading">
+  <h2 id="deactivation-heading">覆盖模式将停用的完整明细</h2>
+  {% if batch.import_type == 'roster' %}
+  <ul>{% for employee in batch.preview.deactivate_employees %}
+    <li data-deactivation-target="employee"><strong>{{ employee.employee_no }}</strong> {{ employee.name }} — {{ employee.department_level_1 }} / {{ employee.department_level_2 }}</li>
+  {% empty %}<li>预览缺少完整停用明细，请重新预检。</li>{% endfor %}</ul>
+  {% else %}
+  <ul>{% for relationship in batch.preview.deactivate_relationships %}
+    <li data-deactivation-target="relationship"><strong>{{ relationship.subject_no }}</strong> {{ relationship.subject_name }} → <strong>{{ relationship.evaluator_no }}</strong> {{ relationship.evaluator_name }}（{{ relationship.relationship_type_label }}）</li>
+  {% empty %}<li>预览缺少完整停用明细，请重新预检。</li>{% endfor %}</ul>
+  {% endif %}
+</section>
+{% endif %}
+{% if batch.issue_count %}<h2>异常明细</h2><ul>{% for issue in issue_page %}<li>第 {{ issue.row_number }} 行 [{{ issue.code }}] {{ issue.message }}</li>{% endfor %}</ul>
+{% if issue_page.has_previous %}<a href="?issue_page={{ issue_page.previous_page_number }}">上一页异常</a>{% endif %}
+<span>异常第 {{ issue_page.number }} / {{ issue_page.paginator.num_pages }} 页</span>
+{% if issue_page.has_next %}<a href="?issue_page={{ issue_page.next_page_number }}">下一页异常</a>{% endif %}{% endif %}
+{% if batch.status == 'previewed' %}
+<form method="post" action="{% url 'roster:import-commit' batch.public_id %}">
+  {% csrf_token %}{{ commit_form.as_p }}<button type="submit"{% if batch.issue_count %} disabled{% endif %}>确认提交</button>
+</form>
+{% else %}<p>该批次已提交，不能重复提交。</p>{% endif %}
+</body></html>

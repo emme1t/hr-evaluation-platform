@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{% block title %}HR 工作台{% endblock %}</title>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; line-height: 1.5; }
+  body { margin: 0; color: #172033; background: #f6f7f9; }
+  body > a { position: absolute; left: -9999px; }
+  body > a:focus { left: 1rem; top: 1rem; background: white; padding: .5rem; z-index: 2; }
+  nav, main { max-width: 72rem; margin: auto; padding: 1rem; }
+  nav { display: flex; gap: 1rem; flex-wrap: wrap; background: white; }
+  a, button, input, select { min-height: 2.5rem; }
+  :focus-visible { outline: 3px solid #155eef; outline-offset: 2px; }
+  .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+  .metric, section, form.filters { background: white; padding: 1rem; border-radius: .5rem; }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 46rem; }
+  th, td { padding: .6rem; border-bottom: 1px solid #d9deea; text-align: left; }
+  @media (max-width: 42rem) {
+    .metrics { grid-template-columns: 1fr; }
+    nav, main { padding: .75rem; }
+    form.filters { display: grid; grid-template-columns: 1fr; }
+  }
+</style></head>
+<body>
+<a href="#main">跳到主要内容</a>
+<nav aria-label="HR 主导航"><a href="{% url 'audit:dashboard' %}">工作台</a> <a href="{% url 'roster:roster-list' %}">花名册</a> <a href="{% url 'roster:category-list' %}">员工类别</a> <a href="{% url 'roster:relationship-list' %}">协作关系</a> <a href="{% url 'evaluations:template-list' %}">评价模板</a> <a href="{% url 'evaluations:project-list' %}">项目与通知</a>{% if request.hr_role == "HR_ADMIN" %} <a href="{% url 'reporting:template-list' %}">报表</a> <a href="{% url 'audit:list' %}">审计日志</a>{% endif %}</nav>
+<main id="main" tabindex="-1">{% block content %}{% endblock %}</main>
+</body>
+</html>

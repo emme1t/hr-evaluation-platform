@@ -1,0 +1,12 @@
+{% extends "hr/base.html" %}
+{% block title %}评价项目{% endblock %}
+{% block content %}
+<h1>评价项目</h1>
+{% if query_error %}<p role="alert">项目筛选条件无效</p>{% else %}
+<p><a href="{% url 'evaluations:project-create' %}">新建项目</a></p>
+<div class="table-wrap"><table><thead><tr><th>项目</th><th>状态</th><th>截止时间</th><th>入口</th></tr></thead><tbody>
+{% for project in projects %}<tr><td><a href="{% url 'evaluations:project-detail' project.public_id %}">{{ project.name }}</a></td><td>{{ project.get_status_display }}</td><td>{{ project.deadline }}</td><td><a href="{% url 'notifications:project-status' project.public_id %}">通知状态</a></td></tr>
+{% empty %}<tr><td colspan="4">暂无符合条件的项目</td></tr>{% endfor %}
+</tbody></table></div>
+{% endif %}
+{% endblock %}

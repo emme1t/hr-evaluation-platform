@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>{% load static %}<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="{% static 'css/app.css' %}"><title>评价任务</title></head>
+<body>
+  <main class="task-form">
+    <h1>评价{{ subject_name }}</h1>
+    {% if is_submitted %}<p class="read-only-notice" role="status">该任务已提交，当前为只读。</p>{% elif is_read_only %}<p class="read-only-notice" role="status">任务已截止，当前为只读。</p>{% endif %}
+    {% if submission_error %}<p class="submission-error" role="alert">{{ submission_error }}</p>{% endif %}
+    <form id="evaluation-form" method="post" action="{% url 'evaluations:task-submit' task.public_id %}" data-draft-url="{% url 'evaluations:task-draft' task.public_id %}" data-draft-version="{{ draft_version }}">
+      {% csrf_token %}
+      <input type="hidden" name="idempotency_key" value="{{ idempotency_key }}">
+      {% for item in evaluation_items %}
+        <section class="evaluation-item" data-evaluation-item="{{ item.snapshot_item_id }}" aria-labelledby="item-{{ forloop.counter }}">
+          <h2 id="item-{{ forloop.counter }}">{{ item.title }}</h2>
+          <p>{{ item.group }}</p>
+          <fieldset>
+            <legend>评分</legend>
+            <div class="score-options">
+              {% for score in item.score_values %}
+                <label><input type="radio" name="score-{{ item.snapshot_item_id }}" data-snapshot-item-id="{{ item.snapshot_item_id }}" value="{{ score }}"{% if item.selected_score == score %} checked{% endif %}{% if is_read_only %} disabled{% endif %}> {{ score }} 分</label>
+              {% endfor %}
+            </div>
+          </fieldset>
+        </section>
+      {% endfor %}
+      {% if not is_read_only %}
+        <p id="draft-status" role="status" aria-live="polite">尚未保存</p>
+        <button type="submit">确认并提交</button>
+      {% endif %}
+    </form>
+  </main>
+  {% if not is_read_only %}<script src="{% static 'js/draft-state.js' %}" defer></script><script src="{% static 'js/draft.js' %}" defer></script>{% endif %}
+</body>
+</html>

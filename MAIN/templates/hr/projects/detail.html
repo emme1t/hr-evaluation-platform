@@ -1,0 +1,24 @@
+{% extends "hr/base.html" %}
+{% block title %}评价项目详情{% endblock %}
+{% block content %}
+<h1>{{ project.name }}</h1>
+{% if error %}<p role="alert">{{ error }}</p>{% endif %}
+<dl>
+  <dt>状态</dt><dd>{{ project.get_status_display }}</dd>
+  <dt>截止时间</dt><dd>{{ project.deadline }}</dd>
+  <dt>任务数</dt><dd>{{ project.tasks.count }}</dd>
+</dl>
+{% if project.status == "ready" or project.status == "active" %}
+  <form method="post" action="{% url 'evaluations:project-extend-deadline' project.public_id %}">
+    {% csrf_token %}
+    {{ deadline_form.as_p }}
+    <button type="submit">延长截止时间</button>
+  </form>
+{% endif %}
+{% if project.status == "active" %}
+  <form method="post" action="{% url 'evaluations:project-close' project.public_id %}">
+    {% csrf_token %}
+    <button type="submit">提前截止</button>
+  </form>
+{% endif %}
+{% endblock %}

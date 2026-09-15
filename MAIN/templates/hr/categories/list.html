@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="zh-Hans"><head><meta charset="utf-8"><title>员工类别维护</title></head>
+<body><nav><a href="{% url 'roster:roster-list' %}">花名册</a> <a href="{% url 'roster:relationship-list' %}">协作关系</a></nav>
+<h1>员工类别维护</h1><p><a href="{% url 'roster:category-create' %}">新增类别</a></p>
+<table><thead><tr><th>编码</th><th>名称</th><th>状态</th><th>操作</th></tr></thead><tbody>
+{% for category in page_obj %}<tr><td>{{ category.code }}</td><td>{{ category.name }}</td><td>{{ category.is_active|yesno:"启用,停用" }}</td>
+<td><a href="{% url 'roster:category-edit' category.id %}">编辑</a>{% if category.is_active %}<form method="post" action="{% url 'roster:category-deactivate' category.id %}" style="display:inline">{% csrf_token %}<button type="submit">停用</button></form>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="4">暂无类别</td></tr>{% endfor %}</tbody></table>
+{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">上一页</a>{% endif %}<span>第 {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 页</span>{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">下一页</a>{% endif %}
+</body></html>

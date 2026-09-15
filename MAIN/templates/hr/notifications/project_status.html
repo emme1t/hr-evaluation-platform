@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>通知状态</title></head>
+<body>
+  <h1>{{ project.name }} - 通知状态</h1>
+  {% if error %}<p role="alert">{{ error }}</p>{% endif %}
+  <table>
+    <thead><tr><th>评价人</th><th>任务数</th><th>通道</th><th>状态</th><th>错误码</th><th>尝试次数</th><th>操作</th></tr></thead>
+    <tbody>
+    {% for outbox in outboxes %}
+      <tr>
+        <td>{{ outbox.recipient.name }}</td><td>{{ outbox.task_count }}</td>
+        <td>{{ outbox.latest_attempt.channel|default:"-" }}</td>
+        <td>{{ outbox.status }}</td>
+        <td>{{ outbox.latest_attempt.failure_code|default:"-" }}</td>
+        <td>{{ outbox.attempts.all|length }}</td>
+        <td{% if outbox.requires_manual_reconciliation %} aria-describedby="{{ outbox.reconciliation_reason_id }}"{% endif %}>
+          {% if outbox.requires_manual_reconciliation %}
+          <p id="{{ outbox.reconciliation_reason_id }}" role="status">发送结果待人工核对；确认服务商侧结果后再决定是否重试。</p>
+          {% elif outbox.can_mutate %}
+          <form method="post" action="{% url 'notifications:retry' outbox.public_id %}">{% csrf_token %}<input type="hidden" name="expected_attempt" value="{{ outbox.latest_attempt.public_id }}"><button type="submit">重试</button></form>
+          <form method="post" action="{% url 'notifications:switch-email' outbox.public_id %}">{% csrf_token %}<input type="hidden" name="expected_attempt" value="{{ outbox.latest_attempt.public_id }}"><button type="submit">切换邮件</button></form>
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td colspan="7">
+          <table aria-label="{{ outbox.recipient.name }}通知尝试历史">
+            <thead>
+              <tr><th>尝试序号</th><th>通道</th><th>状态</th><th>错误码</th><th>时间</th><th>任务数</th><th>员工所收内容预览</th></tr>
+            </thead>
+            <tbody>
+            {% for attempt in outbox.attempt_history %}
+              <tr data-attempt-number="{{ attempt.attempt }}" data-channel="{{ attempt.channel }}" data-status="{{ attempt.status }}">
+                <td>{{ attempt.attempt }}</td>
+                <td>{{ attempt.channel }}</td>
+                <td>{{ attempt.status }}</td>
+                <td>{{ attempt.failure_code|default:"-" }}</td>
+                <td>{{ attempt.created_at|date:"Y-m-d H:i:s" }}</td>
+                <td>{{ attempt.task_count }}</td>
+                <td>
+                  {% if attempt.delivery_preview.unavailable %}
+                    <div data-preview-unavailable="true">历史发送内容不可用</div>
+                  {% elif attempt.delivery_preview.channel == "wecom" %}
+                    <div data-preview-channel="wecom">
+                      <div>标题：{{ attempt.delivery_preview.title }}</div>
+                      <pre>描述：{{ attempt.delivery_preview.description }}</pre>
+                      <div>URL：{{ attempt.delivery_preview.url }}</div>
+                    </div>
+                  {% else %}
+                    <div data-preview-channel="email">
+                      <div>主题：{{ attempt.delivery_preview.subject }}</div>
+                      <pre>正文：{{ attempt.delivery_preview.body }}</pre>
+                      <div>附件：{% if attempt.delivery_preview.has_attachment %}有{% else %}无{% endif %}</div>
+                    </div>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="7">暂无尝试记录</td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    {% empty %}<tr><td colspan="7">暂无通知记录</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

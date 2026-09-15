@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="zh-Hans"><head><meta charset="utf-8"><title>评价表模板</title></head>
+<body>
+<nav><a href="{% url 'roster:roster-list' %}">花名册</a> <a href="{% url 'roster:category-list' %}">员工类别</a></nav>
+<h1>评价表模板</h1>
+<p><a href="{% url 'evaluations:template-create' %}">新建评价表模板</a></p>
+<table><thead><tr><th>员工类别</th><th>名称</th><th>版本</th><th>状态</th><th>操作</th></tr></thead><tbody>
+{% for template in templates %}
+<tr><td>{{ template.category.name }}</td><td>{{ template.name }}</td><td>{{ template.version }}</td><td>{{ template.is_active|yesno:"启用,停用" }}</td><td><a href="{% url 'evaluations:template-edit' template.public_id %}">查看并新建版本</a></td></tr>
+{% empty %}<tr><td colspan="5">暂无评价表模板</td></tr>{% endfor %}
+</tbody></table>
+</body></html>

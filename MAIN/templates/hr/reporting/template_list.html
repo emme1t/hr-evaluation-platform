@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>汇总模板</title></head>
+<body>
+  <h1>汇总模板</h1>
+  <form method="post" enctype="multipart/form-data" action="{% url 'reporting:template-upload' %}">
+    {% csrf_token %}
+    <input type="file" name="file" accept=".xlsx" required>
+    <button type="submit">登记新版本</button>
+  </form>
+  <ul>
+    {% for template in templates %}
+      <li>{{ template.filename }} v{{ template.version }} {{ template.sha256 }}</li>
+    {% empty %}
+      <li>暂无模板</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
